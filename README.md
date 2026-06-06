@@ -8,4 +8,4 @@ Activa ambiente: .venv/Scripts/activate
 Copiar dependencias: pip freeze > requirements.txt 
 Instalar dependencias: pip install -r requirements.txt
 
-streamlit run final.py
+streamlit run proyecto.py
