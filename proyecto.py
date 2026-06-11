@@ -15,6 +15,14 @@ def load_data():
     return results, goalscorers
 
 results, goalscorers = load_data()
+
+NON_FIFA_TEAMS = [
+    "Jersey", "Guernsey", "Alderney", "Isle of Man", "Gibraltar",
+    "Greenland", "Somaliland", "Cascadia", "Occitania", "Tibet",
+    "Northern Cyprus", "Kosovo", "Chagos Islands", "Padania",
+    "Basque Country", "Sápmi", "Abkhazia", "South Ossetia", "Transnistria"
+]
+
 results_viz = results[results["year"] <= 2025].copy()
 
 st.title("Análisis histórico del fútbol internacional (1872-2025)")
@@ -28,6 +36,15 @@ year_range = st.sidebar.slider("Rango de años", year_min, year_max, (1930, 2025
 df = results_viz[
     (results_viz["year"] >= year_range[0]) & (results_viz["year"] <= year_range[1])
 ].copy()
+
+only_fifa = st.sidebar.checkbox("Solo equipos FIFA oficiales", value=False)
+
+if only_fifa:
+    df = df[
+        ~df["home_team"].isin(NON_FIFA_TEAMS) &
+        ~df["away_team"].isin(NON_FIFA_TEAMS)
+    ]
+    goalscorers = goalscorers[~goalscorers["team"].isin(NON_FIFA_TEAMS)]
 
 st.sidebar.caption(f"{len(df):,} partidos en el rango seleccionado")
 
@@ -347,8 +364,8 @@ with tab3:
 # Tab 4: Perfil de selección
 with tab4:
     st.subheader("Perfil historico de una selección")
-
-    all_teams = sorted(set(results_viz["home_team"]).union(results_viz["away_team"]))
+    base = df if only_fifa else results_viz
+    all_teams = sorted(set(base["home_team"]).union(base["away_team"]))
     default_idx = all_teams.index("Brazil") if "Brazil" in all_teams else 0
     team = st.selectbox("Selecciona una selección", all_teams, index=default_idx)
 
